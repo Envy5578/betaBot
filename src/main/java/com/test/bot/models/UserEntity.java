@@ -15,11 +15,11 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Long id;
 
     @Column(name = "take")
     private boolean take;
 
     @Column(name = "tg_Id")
-    private int tgId;
+    private Long tgId;
 }

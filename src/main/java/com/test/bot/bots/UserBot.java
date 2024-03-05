@@ -22,7 +22,7 @@ public class UserBot extends TelegramLongPollingBot {
     private static final String START = "/start";
     @Autowired
     private UserRepository userRepository;
-    private UserEntity user;
+    private UserEntity user = new UserEntity();
     private static final Logger LOG = LoggerFactory.getLogger(UserBot.class);
     // @Autowired
     // private UserBot userBot;
@@ -49,11 +49,22 @@ public class UserBot extends TelegramLongPollingBot {
         return true; // Сообщение разрешено
     }
 
+    @SuppressWarnings("null")
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            if(userRepository.existsById(update.getUpdateId())){
-
+            // System.out.println(update.getMessage().getChatId());
+            // System.out.println(userRepository.existsBytgId(update.getMessage().getChatId()));
+            if(userRepository.existsBytgId(update.getMessage().getChatId())){
+                // startCommand1(update.getMessage().getChatId());
+                try{
+                    execute(new SendMessage(update.getMessage().getChatId().toString(), "Вы получили уже свой gift"));
+        
+                }catch(TelegramApiException e){
+                    LOG.error("Ошибка отправки сообщения", e);
+                }
+                
+            }else{
                 if (isMessageAllowed(update.getMessage())) {
                     switch (update.getMessage().getText()) {
                         case START -> {
@@ -64,22 +75,20 @@ public class UserBot extends TelegramLongPollingBot {
                 } else {
                     return;
                 }
-            }else{
-                startCommand1(update.getMessage().getChatId());
             }
         }
     }
-    private void startCommand1(Long chatId) {
-        try{
-            execute(new SendMessage(chatId.toString(), "Вы получили уже свой gift"));
+    // private void startCommand1(Long chatId) {
+    //     try{
+    //         execute(new SendMessage(chatId.toString(), "Вы получили уже свой gift"));
 
-        }catch(TelegramApiException e){
-            LOG.error("Ошибка отправки сообщения", e);
-        }
-    }
+    //     }catch(TelegramApiException e){
+    //         LOG.error("Ошибка отправки сообщения", e);
+    //     }
+    // }
     private void startCommand(Long chatId) {
         try {
-            user.setTgId(chatId.intValue());
+            user.setTgId(chatId);
             user.setTake(false);
             userRepository.save(user);
             execute(new SendMessage(chatId.toString(), "Ваша рандомная цифра: " + chatId.intValue()));
